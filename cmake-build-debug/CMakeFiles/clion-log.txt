@@ -1,29 +1,4 @@
 C:\WINDOWS\system32\wsl.exe --distribution Ubuntu --exec /bin/sh -c "export CLION_IDE=TRUE && export JETBRAINS_IDE=TRUE && cd '/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug' && /usr/bin/cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_DEPENDS_USE_COMPILER=FALSE -G 'CodeBlocks - Unix Makefiles' '/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4'"
 -- Configuring done
-CMake Error at tests/CMakeLists.txt:22 (add_executable):
-  Cannot find source file:
-
-    /mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp
-
-  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .mpp .m .M .mm .ixx .cppm .h
-  .hh .h++ .hm .hpp .hxx .in .txx .f .F .for .f77 .f90 .f95 .f03 .hip .ispc
-
-
-CMake Error at tests/CMakeLists.txt:28 (add_executable):
-  Cannot find source file:
-
-    /mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_3.cpp
-
-  Tried extensions .c .C .c++ .cc .cpp .cxx .cu .mpp .m .M .mm .ixx .cppm .h
-  .hh .h++ .hm .hpp .hxx .in .txx .f .F .for .f77 .f90 .f95 .f03 .hip .ispc
-
-
-CMake Error at tests/CMakeLists.txt:22 (add_executable):
-  No SOURCES given to target: malloc_2_test
-
-
-CMake Error at tests/CMakeLists.txt:28 (add_executable):
-  No SOURCES given to target: malloc_3_test
-
-
-CMake Generate step failed.  Build files cannot be regenerated correctly.
+-- Generating done
+-- Build files have been written to: /mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug

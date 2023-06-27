@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/malloc_1.cpp.dir/malloc_2.cpp.o CMakeFiles/malloc_1.cpp.dir/malloc_3.cpp.o -o malloc_1.cpp 
