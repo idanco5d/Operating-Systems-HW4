@@ -150,7 +150,7 @@ void* allocateFromFreeList(size_t size) {
     MallocMetadata* availableBlock = freeListsArray[power_of_2];
     freeListsArray[power_of_2]->freeListNext->freeListPrev = NULL;
     freeListsArray[power_of_2] = freeListsArray[power_of_2]->freeListNext;
-    while (128 << (power_of_2-1) > size+_size_meta_data()) {
+    while ((unsigned long)128 << (power_of_2-1) > size+_size_meta_data()) {
         availableBlock->size -= (128 << (power_of_2-1));
         insertToFreeListAt(power_of_2 - 1, (void *) ((unsigned long) availableBlock + (128 << (power_of_2 - 1))), availableBlock->cookie);
         power_of_2--;
@@ -194,7 +194,7 @@ unsigned int getMatchingIndex(size_t size) {
 
 unsigned int getMatchingFirstIndex(size_t size) {
     unsigned int power_of_2 = 0;
-    while (power_of_2 < MAX_ORDER && (128 << power_of_2) < (size + _size_meta_data())) {
+    while (power_of_2 < MAX_ORDER && ((unsigned long)128 << power_of_2) < (size + _size_meta_data())) {
         power_of_2++;
     }
     return power_of_2;
