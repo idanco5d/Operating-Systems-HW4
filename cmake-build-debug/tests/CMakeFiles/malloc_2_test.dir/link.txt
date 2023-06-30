@@ -1,0 +1,1 @@
+/usr/bin/c++ -g CMakeFiles/malloc_2_test.dir/malloc_2_test.cpp.o CMakeFiles/malloc_2_test.dir/__/malloc_2.cpp.o -o malloc_2_test  ../_deps/catch2-build/src/libCatch2Maind.a ../_deps/catch2-build/src/libCatch2d.a 

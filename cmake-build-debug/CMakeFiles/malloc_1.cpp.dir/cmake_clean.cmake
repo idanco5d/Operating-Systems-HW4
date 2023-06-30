@@ -1,4 +1,5 @@
 file(REMOVE_RECURSE
+  "CMakeFiles/malloc_1.cpp.dir/main.cpp.o"
   "CMakeFiles/malloc_1.cpp.dir/malloc_2.cpp.o"
   "CMakeFiles/malloc_1.cpp.dir/malloc_3.cpp.o"
   "malloc_1.cpp"
