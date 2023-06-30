@@ -80,7 +80,7 @@ MallocMetadata* smalloc_reUse(size_t size) {
         }
         temp = temp->next;
     }
-    return (MallocMetadata*)((unsigned long)temp + _size_meta_data());
+    return temp;
 }
 
 void* smalloc_newUse(size_t size)
@@ -129,7 +129,7 @@ void* smalloc(size_t size){
     }
     void* to_reuse= smalloc_reUse(size);
     if(to_reuse){
-        return to_reuse;
+        return (void*)((unsigned long)to_reuse + _size_meta_data());
     }
     void* new_use = smalloc_newUse(size);
     if (new_use) {
