@@ -30,17 +30,17 @@ size_t _size_meta_data() {
     return sizeof(MallocMetadata);
 }
 
-void _num_free_blocks_unique_action(MallocMetadata* temp, size_t& num_free_blocks) {
-    if (temp->is_free) {
-        num_free_blocks++;
-    }
-}
-
-void _num_free_bytes_unique_action(MallocMetadata* temp, size_t& num_free_bytes) {
-    if (temp->is_free) {
-        num_free_bytes+=temp->size;
-    }
-}
+//void _num_free_blocks_unique_action(MallocMetadata* temp, size_t& num_free_blocks) {
+//    if (temp->is_free) {
+//        num_free_blocks++;
+//    }
+//}
+//
+//void _num_free_bytes_unique_action(MallocMetadata* temp, size_t& num_free_bytes) {
+//    if (temp->is_free) {
+//        num_free_bytes+=temp->size;
+//    }
+//}
 
 void _num_allocated_blocks_unique_action(MallocMetadata* temp, size_t& num_allocated_blocks) {
     num_allocated_blocks++;
@@ -54,35 +54,35 @@ void _num_meta_data_bytes_unique_action(MallocMetadata* temp, size_t& num_meta_d
     num_meta_data_bytes += _size_meta_data();
 }
 
-size_t _generic_function_for_all_methods(void (*unique_action)(MallocMetadata*, size_t&)) {
-    MallocMetadata* temp = mallocMetaDataListHead;
-    size_t num = 0;
-    while (temp) {
-        unique_action(temp, num);
-        temp = temp->next;
-    }
-    return num;
-}
-
-size_t _num_free_blocks() {
-    return _generic_function_for_all_methods(_num_free_blocks_unique_action);
-}
-
-size_t _num_free_bytes() {
-    return _generic_function_for_all_methods(_num_free_bytes_unique_action);
-}
-
-size_t _num_allocated_blocks () {
-    return _generic_function_for_all_methods(_num_allocated_blocks_unique_action);
-}
-
-size_t _num_allocated_bytes () {
-    return _generic_function_for_all_methods(_num_allocated_bytes_unique_action);
-}
-
-size_t _num_meta_data_bytes() {
-    return _generic_function_for_all_methods(_num_meta_data_bytes_unique_action);
-}
+//size_t _generic_function_for_all_methods(void (*unique_action)(MallocMetadata*, size_t&)) {
+//    MallocMetadata* temp = mallocMetaDataListHead;
+//    size_t num = 0;
+//    while (temp) {
+//        unique_action(temp, num);
+//        temp = temp->next;
+//    }
+//    return num;
+//}
+//
+//size_t _num_free_blocks() {
+//    return _generic_function_for_all_methods(_num_free_blocks_unique_action);
+//}
+//
+//size_t _num_free_bytes() {
+//    return _generic_function_for_all_methods(_num_free_bytes_unique_action);
+//}
+//
+//size_t _num_allocated_blocks () {
+//    return _generic_function_for_all_methods(_num_allocated_blocks_unique_action);
+//}
+//
+//size_t _num_allocated_bytes () {
+//    return _generic_function_for_all_methods(_num_allocated_bytes_unique_action);
+//}
+//
+//size_t _num_meta_data_bytes() {
+//    return _generic_function_for_all_methods(_num_meta_data_bytes_unique_action);
+//}
 
 bool initialAllocation() {
     int cookiesForAll = rand();
@@ -218,6 +218,7 @@ MallocMetadata* mergeBlocks (MallocMetadata* firstBlock, MallocMetadata* secondB
     else {
         firstBlock->freeListPrev->freeListNext = secondBlock->freeListNext;
     }
+    //if the second block is not the latest we need to update the next block's prev
     if (secondBlock->freeListNext) {
         secondBlock->freeListNext->freeListPrev = firstBlock->freeListPrev;
     }
