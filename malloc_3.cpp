@@ -1,17 +1,22 @@
 #include <unistd.h>
 #include <cstring>
+#include <cstdlib>
+#include <sys/mman.h>
+
+#define MAX_ORDER 10
+#define INITIAL_BLOCKS_AMOUNT 32
+#define MAX_BLOCK_SIZE 1024*128
 
 class MallocMetadata {
 public:
+    int cookie;
     size_t size;
-    bool is_free;
-    MallocMetadata* next;
-    MallocMetadata* prev;
+    MallocMetadata* freeListNext;
+    MallocMetadata* freeListPrev;
 };
 
-
-MallocMetadata* mallocMetaDataListHead= NULL;
-//MallocMetadata* mallocMetaDataListTail = NULL;
+MallocMetadata* freeListsArray[MAX_ORDER + 1] = {NULL};
+bool didWeAllocate = false;
 
 size_t _size_meta_data() {
     return sizeof(MallocMetadata);
@@ -71,127 +76,110 @@ size_t _num_meta_data_bytes() {
     return _generic_function_for_all_methods(_num_meta_data_bytes_unique_action);
 }
 
-MallocMetadata* smalloc_reUse(size_t size) {
-    MallocMetadata* temp = mallocMetaDataListHead;
-    while (temp) {
-        if(temp->is_free && temp->size>=size) {
-            temp->is_free = false;
-            break;
-        }
-        temp = temp->next;
+bool initialAllocation() {
+    int cookiesForAll = rand();
+    if (sbrk(0) && (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) > 0) {
+        sbrk((unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE));
     }
-    return (MallocMetadata*)((unsigned long)temp + _size_meta_data());
+    for (unsigned int i = 0; i < INITIAL_BLOCKS_AMOUNT; i++) {
+        void* sbrk_result = sbrk(MAX_BLOCK_SIZE);
+        if (!sbrk_result) {
+            return false;
+        }
+        MallocMetadata* temp = freeListsArray[MAX_ORDER];
+        MallocMetadata* new_node = (MallocMetadata*)sbrk_result;
+        new_node->is_free= true;
+        new_node->size = MAX_BLOCK_SIZE - _size_meta_data();
+        new_node->cookie = cookiesForAll;
+        new_node->freeListNext = NULL;
+        while (temp && temp->freeListNext) {
+            temp = temp->freeListNext;
+        }
+        if (!temp) {
+            freeListsArray[MAX_ORDER] = new_node;
+            new_node->freeListPrev = NULL;
+        }
+        else {
+            temp->freeListNext = new_node;
+            new_node->freeListPrev = temp;
+        }
+    }
+    return true;
 }
 
-void* smalloc_newUse(size_t size)
-{
-    void* sbrk_result = sbrk(size+_size_meta_data());
-    if (sbrk_result == (void *)-1) {
+void* allocateFromFreeListAtPlace(unsigned int n) {
+    if (n > MAX_ORDER || !freeListsArray[n]) {
         return NULL;
     }
-    MallocMetadata *new_node = (MallocMetadata*)sbrk_result, *temp = mallocMetaDataListHead, *prevTemp=NULL;
-    new_node->is_free = false;
-    new_node->next = NULL;
-    new_node->prev = NULL;
-    new_node->size = size;
-    if (!mallocMetaDataListHead) {
-        mallocMetaDataListHead = new_node;
-        return (void*)((unsigned long)sbrk_result + _size_meta_data());
-    }
-    while(temp) {
-        if(temp->size < size) {
-            prevTemp = temp;
-            temp = temp->next;
-            continue;
-        }
-        break;
-    }
-    if (!temp) {
-        prevTemp->next = new_node;
-        new_node->prev = prevTemp;
-    }
-    else {
-        new_node->prev = prevTemp;
-        new_node->next = temp;
-        temp->prev = new_node;
-        if(prevTemp) {
-            prevTemp->next = new_node;
-        } else {
-            mallocMetaDataListHead = new_node;
-        }
-    }
-    return (void*)((unsigned long)sbrk_result + _size_meta_data());
+    MallocMetadata* temp = freeListsArray[n];
+    freeListsArray[n]->freeListNext->freeListPrev = NULL;
+    freeListsArray[n] = freeListsArray[n]->freeListNext;
+    return (void*)((unsigned long)temp + _size_meta_data());
 }
 
 void* smalloc(size_t size){
     if (size == 0 || size > 100000000) {
         return NULL;
     }
-    void* to_reuse= smalloc_reUse(size);
-    if(to_reuse){
-        return to_reuse;
+    if (!didWeAllocate) {
+        didWeAllocate = true;
+        if (!initialAllocation()) {
+            return NULL;
+        }
     }
-    void* new_use = smalloc_newUse(size);
-    if (new_use) {
-        return new_use;
+    if (size > MAX_BLOCK_SIZE - _size_meta_data()) {
+        size_t allocation_size = size/4096;
+        allocation_size*=4096;
+        if(size % 4096 > 0) {
+            allocation_size+= 4096;
+        }
+        void* mmap_res = mmap(NULL,allocation_size,PROT_READ | PROT_WRITE, MAP_ANONYMOUS,-1,0);
+        if (mmap_res == (void *) -1) {
+            return NULL;
+        }
+        return mmap_res;
     }
-    return NULL;
+    unsigned int power_of_2 = 0;
+    while (power_of_2 <= MAX_ORDER && (128 << power_of_2) < (size + _size_meta_data()) && !freeListsArray[power_of_2]) {
+        power_of_2++;
+    }
+    void* allocated_address = allocateFromFreeListAtPlace(power_of_2);
+    return allocated_address;
 }
 
+
+
 void* scalloc(size_t num, size_t size) {
-    if (size == 0 || num == 0 || size*num > 100000000) {
-        return NULL;
+    void* tozeroall= smalloc(num*size);
+    if (tozeroall) {
+        std::memset(tozeroall,0,num*size);
     }
-    size_t requiredSize = (num-1)*(size-_size_meta_data()) + size, currentBlocksSize = 0;
-    bool isFirst = true;
-    void* firstBlock = NULL;
-    MallocMetadata* temp = mallocMetaDataListHead;
-    while(temp) {
-        if(temp->is_free) {
-            if (isFirst) {
-                firstBlock = temp;
-                isFirst = false;
-                currentBlocksSize += temp->size;
-            }
-            else {
-                currentBlocksSize += temp->size + _size_meta_data();
-            }
-            if (currentBlocksSize == requiredSize) {
-                std::memset((void*)((unsigned long)firstBlock + _size_meta_data()),0,size-_size_meta_data());
-                return (void*)((unsigned long)firstBlock + _size_meta_data());
-            }
-        }
-        else {
-            currentBlocksSize = 0;
-            isFirst = true;
-            firstBlock = NULL;
-        }
-        temp = temp->next;
-    }
-    firstBlock = smalloc_newUse(num*size);
-    return firstBlock;
+    return tozeroall;
 }
 
 void sfree(void* p){
-    if(!p || ((MallocMetadata *) p)->is_free)
+    if(!p || ((MallocMetadata *) (MallocMetadata*)((unsigned long)p-_size_meta_data()))->is_free)
     {
         return;
     }
-    ((MallocMetadata*)p)->is_free=true;
+    ((MallocMetadata*)((unsigned long)p-_size_meta_data()))->is_free=true;
 }
 
 void* srealloc(void* oldp, size_t size){
     if (size == 0 || size > 100000000) {
         return NULL;
     }
-    if(size<= ((MallocMetadata*)oldp)->size)
-    {
-        return oldp;
-    }
+
     if(!oldp)
     {
         return smalloc(size);
     }
+
+    if(size <= ((MallocMetadata*)((unsigned long)oldp - _size_meta_data()))->size)
+    {
+        return oldp;
+    }
+
     void* reallocated_space=smalloc(size);
     if(reallocated_space)
     {

@@ -81,12 +81,12 @@ clean: CMakeFiles/mallocator.dir/clean
 CMakeFiles/mallocator.dir/all:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mallocator.dir/build.make CMakeFiles/mallocator.dir/depend
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mallocator.dir/build.make CMakeFiles/mallocator.dir/build
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=1,2,3 "Built target mallocator"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=1,2,3,4 "Built target mallocator"
 .PHONY : CMakeFiles/mallocator.dir/all
 
 # Build rule for subdir invocation for target.
 CMakeFiles/mallocator.dir/rule: cmake_check_build_system
-	$(CMAKE_COMMAND) -E cmake_progress_start "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" 3
+	$(CMAKE_COMMAND) -E cmake_progress_start "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" 4
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Makefile2 CMakeFiles/mallocator.dir/all
 	$(CMAKE_COMMAND) -E cmake_progress_start "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" 0
 .PHONY : CMakeFiles/mallocator.dir/rule

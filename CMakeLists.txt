@@ -1,7 +1,6 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.22)
+project(HW4)
 
-project(os-hw3)
+set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_DIR ${CMAKE_SOURCE_DIR})
-
-add_subdirectory(tests)
+add_executable(mallocator main.cpp malloc_2.cpp malloc_3.cpp)
