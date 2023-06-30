@@ -209,7 +209,7 @@ void* scalloc(size_t num, size_t size) {
     return tozeroall;
 }
 
-void mergeBlocks (MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
+MallocMetadata* mergeBlocks (MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
     firstBlock->size += secondBlock->size + _size_meta_data();
     //in case the first block is on the beginning of the list
     if(!firstBlock->freeListPrev) {
@@ -221,26 +221,30 @@ void mergeBlocks (MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
     if (secondBlock->freeListNext) {
         secondBlock->freeListNext->freeListPrev = firstBlock->freeListPrev;
     }
-    insertToFreeListAt(getMatchingIndex(firstBlock->size)+1, firstBlock, firstBlock->cookie);
+    return insertToFreeListAt(getMatchingIndex(firstBlock->size)+1, firstBlock, firstBlock->cookie);
 }
 
-void checkAndMerge(MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
+MallocMetadata* checkAndMerge(MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
+    MallocMetadata* toReturn = NULL;
     while (secondBlock && isAdjacent(secondBlock, firstBlock) &&
            isMergedBlockSizeOk(firstBlock)) {
-        mergeBlocks(firstBlock, secondBlock);
+        toReturn = mergeBlocks(firstBlock, secondBlock);
     }
+    return toReturn;
 }
 
-void checkAndMergeFromBack(MallocMetadata *pMetaData) {
+MallocMetadata* checkAndMergeFromBack(MallocMetadata *pMetaData) {
     if (pMetaData && pMetaData->freeListPrev) {
-        checkAndMerge(pMetaData->freeListPrev, pMetaData);
+        return checkAndMerge(pMetaData->freeListPrev, pMetaData);
     }
+    return NULL;
 }
 
-void checkAndMergeFromFront(MallocMetadata *pMetaData) {
+MallocMetadata* checkAndMergeFromFront(MallocMetadata *pMetaData) {
     if (pMetaData && pMetaData->freeListNext) {
-        checkAndMerge(pMetaData, pMetaData->freeListNext);
+        return checkAndMerge(pMetaData, pMetaData->freeListNext);
     }
+    return NULL;
 }
 
 bool isMergedBlockSizeOk(const MallocMetadata *block) {
@@ -263,8 +267,12 @@ void sfree(void* p){
     MallocMetadata* pMetaData = (MallocMetadata*)p;
     pMetaData = insertToFreeListAt(getMatchingIndex(pMetaData->size), p, pMetaData->cookie);
     while(canBeMerged(pMetaData)) {
-        checkAndMergeFromBack(pMetaData);
-        checkAndMergeFromFront(pMetaData);
+        MallocMetadata* backMerge = checkAndMergeFromBack(pMetaData);
+        if(backMerge) {
+            pMetaData = backMerge;
+            continue;
+        }
+        pMetaData = checkAndMergeFromFront(pMetaData);
     }
 }
 
