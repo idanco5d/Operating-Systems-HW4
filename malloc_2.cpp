@@ -1,8 +1,6 @@
-#include <iostream>
-
-#include <cstring>
-#include "malloc_2.h"
 #include <unistd.h>
+#include <cstring>
+
 class MallocMetadata {
 public:
     size_t size;
@@ -101,7 +99,7 @@ void* smalloc_newUse(size_t size)
         return (void*)((unsigned long)sbrk_result + _size_meta_data());
     }
     while(temp) {
-        if(temp->size < size) {
+        if(temp->size <= size) {
             prevTemp = temp;
             temp = temp->next;
             continue;
@@ -140,49 +138,48 @@ void* smalloc(size_t size){
     return NULL;
 }
 
+
+
+/*void* scalloc(size_t num, size_t size) {
+    void* tozeroall= smalloc(num*size);
+    std::memset(tozeroall,0,num*size);
+    return tozeroall;
+}*/
+
+
 void* scalloc(size_t num, size_t size) {
-    void* mem_arr= smalloc(num*size);
-    std::memset(mem_arr,0,num*size);
-    return mem_arr;
+    if (size == 0 || num == 0 || size*num > 100000000) {
+        return NULL;
+    }
+    size_t requiredSize = (num-1)*(size-_size_meta_data()) + size, currentBlocksSize = 0;
+    bool isFirst = true;
+    void* firstBlock = NULL;
+    MallocMetadata* temp = mallocMetaDataListHead;
+    while(temp) {
+        if(temp->is_free) {
+            if (isFirst) {
+                firstBlock = temp;
+                isFirst = false;
+                currentBlocksSize += temp->size;
+            }
+            else {
+                currentBlocksSize += temp->size + _size_meta_data();
+            }
+            if (currentBlocksSize == requiredSize) {
+                std::memset((void*)((unsigned long)firstBlock + _size_meta_data()),0,size-_size_meta_data());
+                return (void*)((unsigned long)firstBlock + _size_meta_data());
+            }
+        }
+        else {
+            currentBlocksSize = 0;
+            isFirst = true;
+            firstBlock = NULL;
+        }
+        temp = temp->next;
+    }
+    firstBlock = smalloc_newUse(num*size);
+    return firstBlock;
 }
-
-
-
-
-
-//void* scalloc(size_t num, size_t size) {
-//    if (size == 0 || num == 0 || size*num > 100000000) {
-//        return NULL;
-//    }
-//    size_t requiredSize = (num-1)*(size-_size_meta_data()) + size, currentBlocksSize = 0;
-//    bool isFirst = true;
-//    void* firstBlock = NULL;
-//    MallocMetadata* temp = mallocMetaDataListHead;
-//    while(temp) {
-//        if(temp->is_free) {
-//            if (isFirst) {
-//                firstBlock = temp;
-//                isFirst = false;
-//                currentBlocksSize += temp->size;
-//            }
-//            else {
-//                currentBlocksSize += temp->size + _size_meta_data();
-//            }
-//            if (currentBlocksSize == requiredSize) {
-//                std::memset((void*)((unsigned long)firstBlock + _size_meta_data()),0,size-_size_meta_data());
-//                return (void*)((unsigned long)firstBlock + _size_meta_data());
-//            }
-//        }
-//        else {
-//            currentBlocksSize = 0;
-//            isFirst = true;
-//            firstBlock = NULL;
-//        }
-//        temp = temp->next;
-//    }
-//    firstBlock = smalloc_newUse(num*size);
-//    return firstBlock;
-//}
 
 void sfree(void* p){
     if(!p || ((MallocMetadata *) (MallocMetadata*)((unsigned long)p-_size_meta_data()))->is_free)
@@ -196,17 +193,17 @@ void* srealloc(void* oldp, size_t size){
     if (size == 0 || size > 100000000) {
         return NULL;
     }
-
-    if(!oldp)
+    
+     if(!oldp)
     {
         return smalloc(size);
     }
-
-    if(size <= ((MallocMetadata*)oldp)->size)
+    
+    if(size<= ((MallocMetadata*)oldp)->size)
     {
         return oldp;
     }
-
+   
     void* reallocated_space=smalloc(size);
     if(reallocated_space)
     {
@@ -216,12 +213,6 @@ void* srealloc(void* oldp, size_t size){
     }
     return NULL;
 }
-
-
-
-
-
-
 
 
 
