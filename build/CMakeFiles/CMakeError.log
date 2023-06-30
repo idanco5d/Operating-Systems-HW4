@@ -1,0 +1,15 @@
+Detecting C compiler ABI info failed to compile with the following output:
+Change Dir: /mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_8398d/fast && No such file or directory
+Generator: execution of make failed. Make command was: /usr/bin/gmake -f Makefile cmTC_8398d/fast && 
+
+
+
+Determining if the C compiler works failed with the following output:
+Change Dir: /mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/gmake -f Makefile cmTC_9dc60/fast && No such file or directory
+Generator: execution of make failed. Make command was: /usr/bin/gmake -f Makefile cmTC_9dc60/fast && 
+
+

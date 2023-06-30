@@ -17,50 +17,6 @@
 					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="malloc_1.cpp">
-				<Option output="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/malloc_1.cpp" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 malloc_1.cpp"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="malloc_1.cpp/fast">
-				<Option output="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/malloc_1.cpp" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug"/>
-				<Option object_output="./"/>
-				<Option type="1"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add directory="/usr/include/c++/9"/>
-					<Add directory="/usr/include/x86_64-linux-gnu/c++/9"/>
-					<Add directory="/usr/include/c++/9/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-linux-gnu/9/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/include/x86_64-linux-gnu"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 malloc_1.cpp/fast"/>
-					<CompileFile command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j8 -f &quot;/mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 			<Target title="edit_cache">
 				<Option working_dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug"/>
 				<Option type="4"/>
@@ -1064,11 +1020,9 @@
 			<Option target="malloc_1_test"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp">
-			<Option target="malloc_1.cpp"/>
 			<Option target="malloc_2_test"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_3.cpp">
-			<Option target="malloc_1.cpp"/>
 			<Option target="malloc_3_test"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_1_test.cpp">
@@ -1078,21 +1032,6 @@
 			<Option target="malloc_2_test"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_3_test_basic.cpp">
-			<Option target="malloc_3_test"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_3_test_reuse.cpp">
-			<Option target="malloc_3_test"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_3_test_scalloc.cpp">
-			<Option target="malloc_3_test"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_3_test_split_and_merge.cpp">
-			<Option target="malloc_3_test"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_3_test_srealloc.cpp">
-			<Option target="malloc_3_test"/>
-		</Unit>
-		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/tests/malloc_3_test_srealloc_cases.cpp">
 			<Option target="malloc_3_test"/>
 		</Unit>
 		<Unit filename="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/CMakeLists.txt">
