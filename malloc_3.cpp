@@ -15,7 +15,9 @@ public:
     MallocMetadata* freeListPrev;
 };
 
-unsigned int getPowerOf2(size_t size);
+unsigned int getMatchingIndex(size_t size);
+
+unsigned int getMatchingFirstIndex(size_t size);
 
 MallocMetadata* freeListsArray[MAX_ORDER + 1] = {NULL};
 bool didWeAllocate = false;
@@ -90,7 +92,6 @@ bool initialAllocation() {
         }
         MallocMetadata* temp = freeListsArray[MAX_ORDER];
         MallocMetadata* new_node = (MallocMetadata*)sbrk_result;
-        new_node->is_free= true;
         new_node->size = MAX_BLOCK_SIZE - _size_meta_data();
         new_node->cookie = cookiesForAll;
         new_node->freeListNext = NULL;
@@ -109,7 +110,7 @@ bool initialAllocation() {
     return true;
 }
 
-void insertToFreeListAt(unsigned int index, void *beginning_address, int cookie) {
+MallocMetadata* insertToFreeListAt(unsigned int index, void *beginning_address, int cookie) {
     MallocMetadata* temp = freeListsArray[index];
     MallocMetadata* new_node = (MallocMetadata*)beginning_address;
     new_node->size = (128 << index) - _size_meta_data();
@@ -134,10 +135,11 @@ void insertToFreeListAt(unsigned int index, void *beginning_address, int cookie)
     temp->freeListPrev = new_node;
     new_node->freeListPrev = prev;
     new_node->freeListNext = temp;
+    return new_node;
 }
 
 void* allocateFromFreeList(size_t size) {
-    unsigned int power_of_2 = getPowerOf2(size);
+    unsigned int power_of_2 = getMatchingIndex(size);
     if (power_of_2 > MAX_ORDER || !freeListsArray[power_of_2]) {
         return NULL;
     }
@@ -178,9 +180,17 @@ void* smalloc(size_t size){
     return allocated_address;
 }
 
-unsigned int getPowerOf2(size_t size) {
+unsigned int getMatchingIndex(size_t size) {
+    unsigned int power_of_2 = getMatchingFirstIndex(size);
+    while (!freeListsArray[power_of_2]) {
+        power_of_2++;
+    }
+    return power_of_2;
+}
+
+unsigned int getMatchingFirstIndex(size_t size) {
     unsigned int power_of_2 = 0;
-    while (power_of_2 <= MAX_ORDER && (128 << power_of_2) < (size + _size_meta_data()) && !freeListsArray[power_of_2]) {
+    while (power_of_2 < MAX_ORDER && (128 << power_of_2) < (size + _size_meta_data())) {
         power_of_2++;
     }
     return power_of_2;
@@ -196,7 +206,9 @@ void* scalloc(size_t num, size_t size) {
 }
 
 void sfree(void* p){
-
+    MallocMetadata* pMetaData = (MallocMetadata*)p;
+    unsigned int indexInArray = getMatchingIndex(pMetaData->size);
+    pMetaData = insertToFreeListAt()
 }
 
 void* srealloc(void* oldp, size_t size){
