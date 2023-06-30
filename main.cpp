@@ -4,23 +4,16 @@
 #include "malloc_2.h"
 
 int main() {
-
     void *base = sbrk(0);
-    int *a = (int *)srealloc(nullptr, 100 * sizeof(int));
+    char *a = (char *)scalloc(1e8, 1);
     assert(a != nullptr);
+    void *after = sbrk(0);
+    assert(1e8 + _size_meta_data() == (size_t)after - (size_t)base);
 
-    for (int i = 0; i < 10; i++)
-    {
-        a[i] = i;
-    }
-    int *b = (int *)srealloc(a, 10 * sizeof(int));
-    assert(b != nullptr);
-   assert(b == a);
-    for (int i = 0; i < 10; i++)
-    {
-        assert(b[i] == i);
-    }
+    char *b = (char *)scalloc(1e8 + 1, 1);
+    assert(b == nullptr);
+    after = sbrk(0);
+    assert(1e8 + _size_meta_data() == (size_t)after - (size_t)base);
 
-
-    sfree(b);
+    sfree(a);
 }

@@ -142,7 +142,9 @@ void* smalloc(size_t size){
 
 void* scalloc(size_t num, size_t size) {
     void* tozeroall= smalloc(num*size);
-    std::memset(tozeroall,0,num*size);
+    if (tozeroall) {
+        std::memset(tozeroall,0,num*size);
+    }
     return tozeroall;
 }
 

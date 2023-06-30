@@ -6,23 +6,9 @@
 
 #IncludeRegexTransform: 
 
-/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/main.cpp
-assert.h
--
-unistd.h
--
-malloc_2.h
-/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.h
-
 /mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp
-iostream
+unistd.h
 -
 cstring
 -
-malloc_2.h
-/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.h
-unistd.h
--
-
-/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.h
 

@@ -66,22 +66,9 @@ include CMakeFiles/mallocator.dir/progress.make
 # Include the compile flags for this target's objects.
 include CMakeFiles/mallocator.dir/flags.make
 
-CMakeFiles/mallocator.dir/malloc_2.cpp.o: CMakeFiles/mallocator.dir/flags.make
-CMakeFiles/mallocator.dir/malloc_2.cpp.o: /mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/malloc_2.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mallocator.dir/malloc_2.cpp.o"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mallocator.dir/malloc_2.cpp.o -c "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp"
-
-CMakeFiles/mallocator.dir/malloc_2.cpp.i: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mallocator.dir/malloc_2.cpp.i"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp" > CMakeFiles/mallocator.dir/malloc_2.cpp.i
-
-CMakeFiles/mallocator.dir/malloc_2.cpp.s: cmake_force
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mallocator.dir/malloc_2.cpp.s"
-	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp" -o CMakeFiles/mallocator.dir/malloc_2.cpp.s
-
 CMakeFiles/mallocator.dir/main.cpp.o: CMakeFiles/mallocator.dir/flags.make
 CMakeFiles/mallocator.dir/main.cpp.o: /mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mallocator.dir/main.cpp.o"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_1) "Building CXX object CMakeFiles/mallocator.dir/main.cpp.o"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mallocator.dir/main.cpp.o -c "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/main.cpp"
 
 CMakeFiles/mallocator.dir/main.cpp.i: cmake_force
@@ -92,16 +79,29 @@ CMakeFiles/mallocator.dir/main.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mallocator.dir/main.cpp.s"
 	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/main.cpp" -o CMakeFiles/mallocator.dir/main.cpp.s
 
+CMakeFiles/mallocator.dir/malloc_2.cpp.o: CMakeFiles/mallocator.dir/flags.make
+CMakeFiles/mallocator.dir/malloc_2.cpp.o: /mnt/c/Users/illus/OneDrive\ -\ Technion/Semester\ 5/Operating\ Systems/HW4/wet4/malloc_2.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_2) "Building CXX object CMakeFiles/mallocator.dir/malloc_2.cpp.o"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/mallocator.dir/malloc_2.cpp.o -c "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp"
+
+CMakeFiles/mallocator.dir/malloc_2.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/mallocator.dir/malloc_2.cpp.i"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp" > CMakeFiles/mallocator.dir/malloc_2.cpp.i
+
+CMakeFiles/mallocator.dir/malloc_2.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/mallocator.dir/malloc_2.cpp.s"
+	/usr/bin/c++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S "/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/malloc_2.cpp" -o CMakeFiles/mallocator.dir/malloc_2.cpp.s
+
 # Object files for target mallocator
 mallocator_OBJECTS = \
-"CMakeFiles/mallocator.dir/malloc_2.cpp.o" \
-"CMakeFiles/mallocator.dir/main.cpp.o"
+"CMakeFiles/mallocator.dir/main.cpp.o" \
+"CMakeFiles/mallocator.dir/malloc_2.cpp.o"
 
 # External object files for target mallocator
 mallocator_EXTERNAL_OBJECTS =
 
-mallocator: CMakeFiles/mallocator.dir/malloc_2.cpp.o
 mallocator: CMakeFiles/mallocator.dir/main.cpp.o
+mallocator: CMakeFiles/mallocator.dir/malloc_2.cpp.o
 mallocator: CMakeFiles/mallocator.dir/build.make
 mallocator: CMakeFiles/mallocator.dir/link.txt
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir="/mnt/c/Users/illus/OneDrive - Technion/Semester 5/Operating Systems/HW4/wet4/cmake-build-debug/CMakeFiles" --progress-num=$(CMAKE_PROGRESS_3) "Linking CXX executable mallocator"

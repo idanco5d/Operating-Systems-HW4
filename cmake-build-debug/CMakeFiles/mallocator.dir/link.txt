@@ -1,1 +1,1 @@
-/usr/bin/c++ -g CMakeFiles/mallocator.dir/malloc_2.cpp.o CMakeFiles/mallocator.dir/main.cpp.o -o mallocator 
+/usr/bin/c++ -g CMakeFiles/mallocator.dir/main.cpp.o CMakeFiles/mallocator.dir/malloc_2.cpp.o -o mallocator 
