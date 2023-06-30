@@ -15,6 +15,8 @@ public:
     MallocMetadata* freeListPrev;
 };
 
+unsigned int getPowerOf2(size_t size);
+
 MallocMetadata* freeListsArray[MAX_ORDER + 1] = {NULL};
 bool didWeAllocate = false;
 
@@ -107,14 +109,47 @@ bool initialAllocation() {
     return true;
 }
 
-void* allocateFromFreeListAtPlace(unsigned int n) {
-    if (n > MAX_ORDER || !freeListsArray[n]) {
+void insertToFreeListAt(unsigned int index, void *beginning_address, int cookie) {
+    MallocMetadata* temp = freeListsArray[index];
+    MallocMetadata* new_node = (MallocMetadata*)beginning_address;
+    new_node->size = (128 << index) - _size_meta_data();
+    new_node->cookie = cookie;
+    if (!temp) {
+        new_node->freeListPrev=NULL;
+        new_node->freeListNext=NULL;
+        freeListsArray[index] = new_node;
+        return;
+    }
+    MallocMetadata* prev = temp->freeListPrev;
+    while(temp && (unsigned long)beginning_address > (unsigned long)temp) {
+        prev = temp;
+        temp = temp->freeListNext;
+    }
+    if (prev) {
+        prev->freeListNext = new_node;
+    }
+    else {
+        freeListsArray[index] = new_node;
+    }
+    temp->freeListPrev = new_node;
+    new_node->freeListPrev = prev;
+    new_node->freeListNext = temp;
+}
+
+void* allocateFromFreeList(size_t size) {
+    unsigned int power_of_2 = getPowerOf2(size);
+    if (power_of_2 > MAX_ORDER || !freeListsArray[power_of_2]) {
         return NULL;
     }
-    MallocMetadata* temp = freeListsArray[n];
-    freeListsArray[n]->freeListNext->freeListPrev = NULL;
-    freeListsArray[n] = freeListsArray[n]->freeListNext;
-    return (void*)((unsigned long)temp + _size_meta_data());
+    MallocMetadata* availableBlock = freeListsArray[power_of_2];
+    freeListsArray[power_of_2]->freeListNext->freeListPrev = NULL;
+    freeListsArray[power_of_2] = freeListsArray[power_of_2]->freeListNext;
+    while (128 << (power_of_2-1) > size+_size_meta_data()) {
+        availableBlock->size -= (128 << (power_of_2-1));
+        insertToFreeListAt(power_of_2 - 1, (void *) ((unsigned long) availableBlock + (128 << (power_of_2 - 1))), availableBlock->cookie);
+        power_of_2--;
+    }
+    return (void*)((unsigned long)availableBlock + _size_meta_data());
 }
 
 void* smalloc(size_t size){
@@ -139,14 +174,17 @@ void* smalloc(size_t size){
         }
         return mmap_res;
     }
+    void* allocated_address = allocateFromFreeList(size);
+    return allocated_address;
+}
+
+unsigned int getPowerOf2(size_t size) {
     unsigned int power_of_2 = 0;
     while (power_of_2 <= MAX_ORDER && (128 << power_of_2) < (size + _size_meta_data()) && !freeListsArray[power_of_2]) {
         power_of_2++;
     }
-    void* allocated_address = allocateFromFreeListAtPlace(power_of_2);
-    return allocated_address;
+    return power_of_2;
 }
-
 
 
 void* scalloc(size_t num, size_t size) {
@@ -158,11 +196,7 @@ void* scalloc(size_t num, size_t size) {
 }
 
 void sfree(void* p){
-    if(!p || ((MallocMetadata *) (MallocMetadata*)((unsigned long)p-_size_meta_data()))->is_free)
-    {
-        return;
-    }
-    ((MallocMetadata*)((unsigned long)p-_size_meta_data()))->is_free=true;
+
 }
 
 void* srealloc(void* oldp, size_t size){
