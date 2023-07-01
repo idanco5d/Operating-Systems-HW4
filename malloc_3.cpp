@@ -19,6 +19,10 @@ unsigned int getMatchingIndex(size_t size);
 
 unsigned int getMatchingFirstIndex(size_t size);
 
+bool isAdjacent(const MallocMetadata *secondBlock, const MallocMetadata *firstBlock);
+
+bool isMergedBlockSizeOk(const MallocMetadata *block);
+
 MallocMetadata* freeListsArray[MAX_ORDER + 1] = {NULL};
 bool didWeAllocate = false;
 
@@ -119,7 +123,7 @@ MallocMetadata* insertToFreeListAt(unsigned int index, void *beginning_address, 
         new_node->freeListPrev=NULL;
         new_node->freeListNext=NULL;
         freeListsArray[index] = new_node;
-        return;
+        return new_node;
     }
     MallocMetadata* prev = temp->freeListPrev;
     while(temp && (unsigned long)beginning_address > (unsigned long)temp) {
@@ -205,10 +209,63 @@ void* scalloc(size_t num, size_t size) {
     return tozeroall;
 }
 
+void mergeBlocks (MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
+    firstBlock->size += secondBlock->size + _size_meta_data();
+    //in case the first block is on the beginning of the list
+    if(!firstBlock->freeListPrev) {
+        freeListsArray[getMatchingIndex(firstBlock->size)] = secondBlock->freeListNext;
+    }
+    else {
+        firstBlock->freeListPrev->freeListNext = secondBlock->freeListNext;
+    }
+    if (secondBlock->freeListNext) {
+        secondBlock->freeListNext->freeListPrev = firstBlock->freeListPrev;
+    }
+    insertToFreeListAt(getMatchingIndex(firstBlock->size)+1, firstBlock, firstBlock->cookie);
+}
+
+void checkAndMerge(MallocMetadata* firstBlock, MallocMetadata* secondBlock) {
+    while (secondBlock && isAdjacent(secondBlock, firstBlock) &&
+           isMergedBlockSizeOk(firstBlock)) {
+        mergeBlocks(firstBlock, secondBlock);
+    }
+}
+
+void checkAndMergeFromBack(MallocMetadata *pMetaData) {
+    if (pMetaData && pMetaData->freeListPrev) {
+        checkAndMerge(pMetaData->freeListPrev, pMetaData);
+    }
+}
+
+void checkAndMergeFromFront(MallocMetadata *pMetaData) {
+    if (pMetaData && pMetaData->freeListNext) {
+        checkAndMerge(pMetaData, pMetaData->freeListNext);
+    }
+}
+
+bool isMergedBlockSizeOk(const MallocMetadata *block) {
+    return getMatchingFirstIndex(block->size) < MAX_ORDER;
+}
+
+bool isAdjacent(const MallocMetadata *secondBlock, const MallocMetadata *firstBlock) {
+    return (unsigned long)firstBlock + _size_meta_data() + firstBlock->size == (unsigned long)secondBlock;
+}
+
+bool canBeMerged(MallocMetadata* block) {
+    if (block &&isMergedBlockSizeOk(block) &&
+    ((block->freeListPrev && isAdjacent(block, block->freeListPrev)) || ((block->freeListNext && isAdjacent(block->freeListNext, block))))) {
+        return true;
+    }
+    return false;
+}
+
 void sfree(void* p){
     MallocMetadata* pMetaData = (MallocMetadata*)p;
-    unsigned int indexInArray = getMatchingIndex(pMetaData->size);
-    pMetaData = insertToFreeListAt()
+    pMetaData = insertToFreeListAt(getMatchingIndex(pMetaData->size), p, pMetaData->cookie);
+    while(canBeMerged(pMetaData)) {
+        checkAndMergeFromBack(pMetaData);
+        checkAndMergeFromFront(pMetaData);
+    }
 }
 
 void* srealloc(void* oldp, size_t size){
