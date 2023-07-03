@@ -153,30 +153,6 @@ main.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/mallocator.dir/build.make CMakeFiles/mallocator.dir/main.cpp.s
 .PHONY : main.cpp.s
 
-malloc_2.o: malloc_2.cpp.o
-.PHONY : malloc_2.o
-
-# target to build an object file
-malloc_2.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mallocator.dir/build.make CMakeFiles/mallocator.dir/malloc_2.cpp.o
-.PHONY : malloc_2.cpp.o
-
-malloc_2.i: malloc_2.cpp.i
-.PHONY : malloc_2.i
-
-# target to preprocess a source file
-malloc_2.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mallocator.dir/build.make CMakeFiles/mallocator.dir/malloc_2.cpp.i
-.PHONY : malloc_2.cpp.i
-
-malloc_2.s: malloc_2.cpp.s
-.PHONY : malloc_2.s
-
-# target to generate assembly for a file
-malloc_2.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/mallocator.dir/build.make CMakeFiles/mallocator.dir/malloc_2.cpp.s
-.PHONY : malloc_2.cpp.s
-
 malloc_3.o: malloc_3.cpp.o
 .PHONY : malloc_3.o
 
@@ -213,9 +189,6 @@ help:
 	@echo "... main.o"
 	@echo "... main.i"
 	@echo "... main.s"
-	@echo "... malloc_2.o"
-	@echo "... malloc_2.i"
-	@echo "... malloc_2.s"
 	@echo "... malloc_3.o"
 	@echo "... malloc_3.i"
 	@echo "... malloc_3.s"

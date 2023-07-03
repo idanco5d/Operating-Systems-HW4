@@ -112,7 +112,7 @@ size_t _num_meta_data_bytes() {
 bool initialAllocation() {
     globalCookie = rand();
     if (sbrk(0) && (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) > 0) {
-        sbrk((unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE));
+        sbrk((INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) - (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE));
     }
     for (unsigned int i = 0; i < INITIAL_BLOCKS_AMOUNT; i++) {
         void* sbrk_result = sbrk(MAX_BLOCK_SIZE);
@@ -121,7 +121,7 @@ bool initialAllocation() {
         }
         MallocMetadata* temp = freeListsArray[MAX_ORDER];
         MallocMetadata* new_node = (MallocMetadata*)sbrk_result;
-        new_node->size = MAX_BLOCK_SIZE - _size_meta_data();
+        new_node->size = MAX_BLOCK_SIZE;
         new_node->cookie = globalCookie;
         new_node->freeListNext = nullptr;
         new_node->isMmapped = false;
@@ -143,19 +143,20 @@ bool initialAllocation() {
 
 MallocMetadata *insertToFreeListAt(unsigned int index, void *beginning_address) {
     MallocMetadata* temp = freeListsArray[index];
-    cookieAuthenticator(temp);
     auto* new_node = (MallocMetadata*)beginning_address;
-    new_node->size = (128 << index) - _size_meta_data();
+    new_node->size = (128 << index);
     new_node->cookie = globalCookie;
     new_node->indexInArray = index;
+    new_node->isMmapped = false;
     if (!temp) {
         new_node->freeListPrev=nullptr;
         new_node->freeListNext=nullptr;
         freeListsArray[index] = new_node;
         return new_node;
     }
+    cookieAuthenticator(temp);
     MallocMetadata* prev = temp->freeListPrev;
-    while(temp && (unsigned long)beginning_address > (unsigned long)temp) {
+    while(temp->freeListNext && (unsigned long)beginning_address > (unsigned long)temp) {
         prev = temp;
         temp = temp->freeListNext;
     }
@@ -173,7 +174,7 @@ MallocMetadata *insertToFreeListAt(unsigned int index, void *beginning_address) 
 
 MallocMetadata* findBuddyAddress(MallocMetadata* block) {
     auto blockAddress = (unsigned long)block;
-    unsigned long buddyAddress = blockAddress^(128 << block->indexInArray);
+    unsigned long buddyAddress = blockAddress^(block->size);
     cookieAuthenticator((MallocMetadata*)buddyAddress);
     return (MallocMetadata*)buddyAddress;
 }
@@ -230,12 +231,9 @@ void* allocateFromFreeList(size_t size) {
 
 unsigned int handleBlockSplit(unsigned int indexInArray, MallocMetadata *availableBlock) {
     removeFromFreeList(availableBlock);
-    availableBlock->size -= (128 << (indexInArray - 1));
-    MallocMetadata* buddy = findBuddyAddress(availableBlock);
-    buddy->size = availableBlock->size;
-    buddy->isMmapped = false;
+    availableBlock->size /= 2;
     insertToFreeListAt(indexInArray - 1, (void *) availableBlock);
-    insertToFreeListAt(indexInArray - 1, (void *) buddy);
+    insertToFreeListAt(indexInArray - 1, (void *) ((unsigned long)availableBlock + availableBlock->size));
     indexInArray--;
     return indexInArray;
 }
@@ -254,6 +252,7 @@ void* smalloc(size_t size){
         return getMmapedBlock(size);
     }
     void* allocated_address = allocateFromFreeList(size);
+    removeFromFreeList((MallocMetadata*)allocated_address);
     setAllocatedBlocksBytes(size);
     return allocated_address;
 }
@@ -276,7 +275,6 @@ void *getMmapedBlock(size_t size) {
 
 void setMmappedBlockData(size_t allocation_size, const void *mmap_res) {
     auto* mmappedMetaData = (MallocMetadata*)mmap_res;
-    cookieAuthenticator(mmappedMetaData);
     mmappedMetaData->size = allocation_size-_size_meta_data();
     mmappedMetaData->isMmapped = true;
     mmappedMetaData->cookie = globalCookie;

@@ -3,4 +3,4 @@ project(HW4)
 
 set(CMAKE_CXX_STANDARD 11)
 
-add_executable(mallocator main.cpp malloc_2.cpp malloc_3.cpp)
+add_executable(mallocator main.cpp malloc_3.cpp)
