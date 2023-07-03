@@ -156,21 +156,28 @@ MallocMetadata *insertToFreeListAt(unsigned int index, void *beginning_address) 
     }
     cookieAuthenticator(temp);
     MallocMetadata* prev = temp->freeListPrev;
-    while(temp->freeListNext && (unsigned long)beginning_address > (unsigned long)temp) {
+    while(temp && (unsigned long)beginning_address > (unsigned long)temp) {
         prev = temp;
         temp = temp->freeListNext;
     }
     if (prev) {
         prev->freeListNext = new_node;
+        new_node->freeListPrev = prev;
     }
     else {
         freeListsArray[index] = new_node;
+        new_node->freeListPrev = nullptr;
     }
-    temp->freeListPrev = new_node;
-    new_node->freeListPrev = prev;
-    new_node->freeListNext = temp;
+    if (temp) {
+        temp->freeListPrev = new_node;
+        new_node->freeListNext = temp;
+    }
+    else {
+        new_node->freeListNext = nullptr;
+    }
     return new_node;
 }
+
 
 MallocMetadata* findBuddyAddress(MallocMetadata* block) {
     auto blockAddress = (unsigned long)block;
@@ -189,7 +196,7 @@ unsigned int getMatchingIndex(size_t size) {
 
 unsigned int getMatchingFirstIndex(size_t size) {
     unsigned int power_of_2 = 0;
-    while (power_of_2 < MAX_ORDER && ((unsigned long)128 << power_of_2) < (size + _size_meta_data())) {
+    while (power_of_2 < MAX_ORDER && ((unsigned long)128 << power_of_2) < (size)) {
         power_of_2++;
     }
     return power_of_2;
@@ -223,7 +230,7 @@ void* allocateFromFreeList(size_t size) {
         return nullptr;
     }
     cookieAuthenticator(availableBlock);
-    while ((unsigned long)128 << (indexInArray - 1) > size + _size_meta_data() && indexInArray > 0) {
+    while ((unsigned long)128 << (indexInArray - 1) > size && indexInArray > 0) {
         indexInArray = handleBlockSplit(indexInArray, availableBlock);
     }
     return (void*)((unsigned long)availableBlock + _size_meta_data());
@@ -340,7 +347,7 @@ void sfree(void* p){
         munmap(pMetaData, pMetaData->size+_size_meta_data());
         return;
     }
-    pMetaData = insertToFreeListAt(getMatchingIndex(pMetaData->size), p);
+    pMetaData = insertToFreeListAt(getMatchingFirstIndex(pMetaData->size), p-_size_meta_data());
     blockMergeToMaxOrSize(pMetaData, true);
 }
 
