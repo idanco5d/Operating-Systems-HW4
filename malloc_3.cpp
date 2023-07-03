@@ -379,7 +379,7 @@ void* srealloc(void* oldp, size_t size){
     {
         return oldp;
     }
-    if(size <= 128 << oldp_meta_data->indexInArray)
+    if(size <= (unsigned long)128 << oldp_meta_data->indexInArray)
     {
         oldp_meta_data->size = size;
         return oldp;
