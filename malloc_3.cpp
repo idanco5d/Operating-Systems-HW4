@@ -347,7 +347,7 @@ void sfree(void* p){
         munmap(pMetaData, pMetaData->size+_size_meta_data());
         return;
     }
-    pMetaData = insertToFreeListAt(getMatchingFirstIndex(pMetaData->size), p-_size_meta_data());
+    pMetaData = insertToFreeListAt(getMatchingFirstIndex(pMetaData->size), (void*)((unsigned long)p-_size_meta_data()));
     blockMergeToMaxOrSize(pMetaData, true);
 }
 
