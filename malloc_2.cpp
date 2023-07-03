@@ -10,7 +10,7 @@ public:
 };
 
 
-MallocMetadata* mallocMetaDataListHead= NULL;
+MallocMetadata* mallocMetaDataListHead= nullptr;
 
 size_t _size_meta_data() {
     return sizeof(MallocMetadata);
@@ -86,12 +86,12 @@ void* smalloc_newUse(size_t size)
 {
     void* sbrk_result = sbrk(size+_size_meta_data());
     if (sbrk_result == (void *)-1) {
-        return NULL;
+        return nullptr;
     }
-    MallocMetadata *new_node = (MallocMetadata*)sbrk_result, *temp = mallocMetaDataListHead, *prevTemp=NULL;
+    MallocMetadata *new_node = (MallocMetadata*)sbrk_result, *temp = mallocMetaDataListHead, *prevTemp=nullptr;
     new_node->is_free = false;
-    new_node->next = NULL;
-    new_node->prev = NULL;
+    new_node->next = nullptr;
+    new_node->prev = nullptr;
     new_node->size = size;
     if (!mallocMetaDataListHead) {
         mallocMetaDataListHead = new_node;
@@ -124,7 +124,7 @@ void* smalloc_newUse(size_t size)
 
 void* smalloc(size_t size){
     if (size == 0 || size > 100000000) {
-        return NULL;
+        return nullptr;
     }
     void* to_reuse= smalloc_reUse(size);
     if(to_reuse){
@@ -134,7 +134,7 @@ void* smalloc(size_t size){
     if (new_use) {
         return new_use;
     }
-    return NULL;
+    return nullptr;
 }
 
 
@@ -157,7 +157,7 @@ void sfree(void* p){
 
 void* srealloc(void* oldp, size_t size){
     if (size == 0 || size > 100000000) {
-        return NULL;
+        return nullptr;
     }
     
      if(!oldp)
@@ -177,7 +177,7 @@ void* srealloc(void* oldp, size_t size){
         sfree(oldp);
         return reallocated_space;
     }
-    return NULL;
+    return nullptr;
 }
 
 
