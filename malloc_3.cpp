@@ -2,6 +2,7 @@
 #include <cstring>
 #include <cstdlib>
 #include <sys/mman.h>
+#include <ctime>
 
 #define MAX_ORDER 10
 #define INITIAL_BLOCKS_AMOUNT 32
@@ -31,7 +32,7 @@ void setMmappedBlockData(size_t allocation_size, const void *mmap_res);
 
 void *getMmapedBlock(size_t size);
 
-void setAllocatedBlocksBytes(size_t size);
+void setAllocatedBlocksBytes(long size, int incrementor_not_free_blocks);
 
 unsigned int handleBlockSplit(unsigned int indexInArray, MallocMetadata *availableBlock);
 
@@ -45,10 +46,17 @@ bool canBeSpeculatedMergedOnce(MallocMetadata *pMetadata, unsigned int index);
 
 void cookieAuthenticator(MallocMetadata *pMetadata);
 
+bool currentProgBrkNotPowerOf2();
+
+void makeProgBreakPowerOf2();
+
+bool isMetaDataInFreeList(MallocMetadata *pMetadata);
+
 MallocMetadata* freeListsArray[MAX_ORDER + 1] = {nullptr};
 bool didWeAllocate = false;
-size_t num_allocated_blocks = 0;
-size_t num_allocated_bytes = 0;
+size_t num_not_free_blocks = 0;
+size_t num_not_free_bytes = 0;
+size_t mmapped_bytes = 0;
 int globalCookie = -1;
 
 size_t _size_meta_data() {
@@ -75,8 +83,8 @@ void _num_allocated_bytes_unique_action(MallocMetadata* temp, size_t& num_alloca
 //    num_meta_data_bytes += _size_meta_data();
 //}
 
-size_t _generic_function_for_all_methods(void (*unique_action)(MallocMetadata*, size_t&)) {
-    size_t num = 0;
+size_t _generic_function_for_all_methods(void (*unique_action)(MallocMetadata*, size_t&), size_t initial_value = 0) {
+    size_t num = initial_value;
     for (unsigned int i = 0; i <= MAX_ORDER; i++) {
         MallocMetadata* temp = freeListsArray[i];
         while (temp) {
@@ -84,7 +92,6 @@ size_t _generic_function_for_all_methods(void (*unique_action)(MallocMetadata*, 
             temp = temp->freeListNext;
         }
     }
-
     return num;
 }
 
@@ -93,52 +100,19 @@ size_t _num_free_blocks() {
 }
 
 size_t _num_free_bytes() {
-    return _generic_function_for_all_methods(_num_free_bytes_unique_action);
+    return _generic_function_for_all_methods(_num_free_bytes_unique_action) - _num_free_blocks()*_size_meta_data();
 }
 
 size_t _num_allocated_blocks () {
-    return num_allocated_blocks;
-}
-
-size_t _num_allocated_bytes () {
-    return num_allocated_bytes;
+    return _generic_function_for_all_methods(_num_allocated_blocks_unique_action, num_not_free_blocks);
 }
 
 size_t _num_meta_data_bytes() {
-//    return _generic_function_for_all_methods(_num_meta_data_bytes_unique_action);
-    return 0;
+    return _num_allocated_blocks()*_size_meta_data();
 }
 
-bool initialAllocation() {
-    globalCookie = rand();
-    if (sbrk(0) && (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) > 0) {
-        sbrk((INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) - (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE));
-    }
-    for (unsigned int i = 0; i < INITIAL_BLOCKS_AMOUNT; i++) {
-        void* sbrk_result = sbrk(MAX_BLOCK_SIZE);
-        if (!sbrk_result) {
-            return false;
-        }
-        MallocMetadata* temp = freeListsArray[MAX_ORDER];
-        MallocMetadata* new_node = (MallocMetadata*)sbrk_result;
-        new_node->size = MAX_BLOCK_SIZE;
-        new_node->cookie = globalCookie;
-        new_node->freeListNext = nullptr;
-        new_node->isMmapped = false;
-        new_node->indexInArray = MAX_ORDER;
-        while (temp && temp->freeListNext) {
-            temp = temp->freeListNext;
-        }
-        if (!temp) {
-            freeListsArray[MAX_ORDER] = new_node;
-            new_node->freeListPrev = nullptr;
-        }
-        else {
-            temp->freeListNext = new_node;
-            new_node->freeListPrev = temp;
-        }
-    }
-    return true;
+size_t _num_allocated_bytes () {
+    return didWeAllocate ? MAX_BLOCK_SIZE*INITIAL_BLOCKS_AMOUNT-_num_meta_data_bytes()+mmapped_bytes : 0;
 }
 
 MallocMetadata *insertToFreeListAt(unsigned int index, void *beginning_address) {
@@ -177,6 +151,26 @@ MallocMetadata *insertToFreeListAt(unsigned int index, void *beginning_address) 
     }
     return new_node;
 }
+
+bool initialAllocation() {
+    srand(time(nullptr));
+    globalCookie = rand();
+    if (currentProgBrkNotPowerOf2()) {
+        makeProgBreakPowerOf2();
+    }
+    for (unsigned int i = 0; i < INITIAL_BLOCKS_AMOUNT; i++) {
+        void* sbrk_result = sbrk(MAX_BLOCK_SIZE);
+        if (!sbrk_result) {
+            return false;
+        }
+        insertToFreeListAt(MAX_ORDER, sbrk_result);
+    }
+    return true;
+}
+
+void makeProgBreakPowerOf2() { sbrk((INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) - (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE)); }
+
+bool currentProgBrkNotPowerOf2() { return sbrk(0) && (unsigned long)sbrk(0) % (INITIAL_BLOCKS_AMOUNT * MAX_BLOCK_SIZE) > 0; }
 
 
 MallocMetadata* findBuddyAddress(MallocMetadata* block) {
@@ -259,24 +253,25 @@ void* smalloc(size_t size){
         return getMmapedBlock(size);
     }
     void* allocated_address = allocateFromFreeList(size);
-    removeFromFreeList((MallocMetadata*)allocated_address);
-    setAllocatedBlocksBytes(size);
+    removeFromFreeList((MallocMetadata*)((unsigned long)allocated_address-_size_meta_data()));
+    setAllocatedBlocksBytes(128 << getMatchingFirstIndex(size), 1);
     return allocated_address;
 }
 
-void setAllocatedBlocksBytes(size_t size) {
-    num_allocated_blocks++;
-    num_allocated_bytes += size;
+void setAllocatedBlocksBytes(long size, int incrementor_not_free_blocks) {
+    num_not_free_blocks += incrementor_not_free_blocks;
+    num_not_free_bytes += size;
 }
 
 void *getMmapedBlock(size_t size) {
-    size_t allocation_size = getAllocationSize(size);
+    size_t allocation_size = size + _size_meta_data();
     void* mmap_res = mmap(nullptr,allocation_size,PROT_READ | PROT_WRITE, MAP_ANONYMOUS | MAP_SHARED,-1,0);
     if (mmap_res == (void *) -1) {
         return nullptr;
     }
     setMmappedBlockData(allocation_size, mmap_res);
-    setAllocatedBlocksBytes(size);
+    setAllocatedBlocksBytes(size + _size_meta_data(), 1);
+    mmapped_bytes += size + _size_meta_data();
     return (void*)((unsigned long)mmap_res+_size_meta_data());
 }
 
@@ -310,15 +305,14 @@ MallocMetadata* mergeBlocks (MallocMetadata* block1, MallocMetadata* block2) {
     removeFromFreeList(block1);
     removeFromFreeList(block2);
     if ((unsigned long)block2 > (unsigned long)block1) {
-        return insertFirstBlockToList(block1, block2);
+        return insertToFreeListAt(block1->indexInArray + 1, block1);
     }
-    return insertFirstBlockToList(block2, block1);
+    return insertToFreeListAt(block1->indexInArray + 1, block2);
 }
 
-MallocMetadata *insertFirstBlockToList(MallocMetadata *block1, const MallocMetadata *block2) {
-    block1->size += block2->size + _size_meta_data();
-    return insertToFreeListAt(block1->indexInArray + 1, block1);
-}
+//MallocMetadata *insertFirstBlockToList(MallocMetadata *block1, const MallocMetadata *block2) {
+//    return insertToFreeListAt(block1->indexInArray + 1, block1);
+//}
 
 bool isAdjacent(const MallocMetadata *block1, const MallocMetadata *block2) {
     if (!block1 || !block2) {
@@ -341,14 +335,36 @@ bool canBeMerged(MallocMetadata* block) {
 }
 
 void sfree(void* p){
+    if (!p) {
+        return;
+    }
     auto* pMetaData = (MallocMetadata*)((unsigned long)p-_size_meta_data());
     cookieAuthenticator(pMetaData);
+    if (isMetaDataInFreeList(pMetaData)) {
+        return;
+    }
     if (pMetaData->isMmapped) {
+        setAllocatedBlocksBytes(-(long)pMetaData->size-(long)_size_meta_data(),-1);
+        mmapped_bytes -= pMetaData->size + _size_meta_data();
         munmap(pMetaData, pMetaData->size+_size_meta_data());
         return;
     }
     pMetaData = insertToFreeListAt(getMatchingFirstIndex(pMetaData->size), (void*)((unsigned long)p-_size_meta_data()));
+    setAllocatedBlocksBytes(-(long)pMetaData->size-(long)_size_meta_data(), -1);
     blockMergeToMaxOrSize(pMetaData, true);
+}
+
+bool isMetaDataInFreeList(MallocMetadata *pMetadata) {
+    for (unsigned int i = 0; i <= MAX_ORDER; i++) {
+        MallocMetadata* temp = freeListsArray[i];
+        while(temp) {
+            if ((unsigned long)temp == (unsigned long)pMetadata) {
+                return true;
+            }
+            temp = temp->freeListNext;
+        }
+    }
+    return false;
 }
 
 void cookieAuthenticator(MallocMetadata *pMetadata) {
@@ -384,6 +400,12 @@ void* srealloc(void* oldp, size_t size){
     {
         return oldp;
     }
+    if (oldp_meta_data->isMmapped) {
+        setAllocatedBlocksBytes(-(long)oldp_meta_data->size,-1);
+        mmapped_bytes -= (long)oldp_meta_data->size + _size_meta_data();
+        munmap(oldp,oldp_meta_data->size + _size_meta_data());
+        return getMmapedBlock(size);
+    }
     if(size <= (unsigned long)128 << oldp_meta_data->indexInArray)
     {
         oldp_meta_data->size = size;
@@ -394,6 +416,7 @@ void* srealloc(void* oldp, size_t size){
         MallocMetadata* newp_meta_data = blockMergeToMaxOrSize(oldp_meta_data, false, requiredIndexForSize);
         cookieAuthenticator(newp_meta_data);
         removeFromFreeList(newp_meta_data);
+        num_not_free_bytes += size - oldp_meta_data->size;
         return (void*)((unsigned long)newp_meta_data + _size_meta_data());
     }
     void* reallocated_space=smalloc(size);
