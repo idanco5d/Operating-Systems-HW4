@@ -239,6 +239,15 @@ unsigned int handleBlockSplit(unsigned int indexInArray, MallocMetadata *availab
     return indexInArray;
 }
 
+bool isFreeListEmpty() {
+    for (int i = 0; i <= MAX_ORDER; i++) {
+        if (freeListsArray[i]) {
+            return false;
+        }
+    }
+    return true;
+}
+
 void* smalloc(size_t size){
     if (size == 0 || size > 100000000) {
         return nullptr;
@@ -251,6 +260,9 @@ void* smalloc(size_t size){
     }
     if (size > MAX_BLOCK_SIZE - _size_meta_data()) {
         return getMmapedBlock(size);
+    }
+    if (isFreeListEmpty()) {
+        return nullptr;
     }
     void* allocated_address = allocateFromFreeList(size);
     removeFromFreeList((MallocMetadata*)((unsigned long)allocated_address-_size_meta_data()));
