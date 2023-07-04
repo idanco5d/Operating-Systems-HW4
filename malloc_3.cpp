@@ -249,14 +249,14 @@ bool isFreeListEmpty() {
 }
 
 void* smalloc(size_t size){
-    if (size == 0 || size > 100000000) {
-        return nullptr;
-    }
     if (!didWeAllocate) {
         didWeAllocate = true;
         if (!initialAllocation()) {
             return nullptr;
         }
+    }
+    if (size == 0 || size > 100000000) {
+        return nullptr;
     }
     if (size > MAX_BLOCK_SIZE - _size_meta_data()) {
         return getMmapedBlock(size);

@@ -53,49 +53,12 @@ void verify_block_by_order(int order0free, int order0used, int order1free, int o
 
 
 int main() {
-    std::vector<void*> allocations;
-
-    // Allocate 64 blocks of size 128 * 2^9 - 64
-    for (int i = 0; i < 64; i++)
-    {
-        void* ptr = smalloc(128 * std::pow(2, 9) - 64);
-        assert(ptr != nullptr);
-        allocations.push_back(ptr);
-//        printf("%d\n",i);
-//        fflush(stdout);
-        verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, allocations.size()%2, allocations.size(), 32-(int)(i/2)-1, 0, 0, 0);
-    }
-
-    assert(smalloc(40) == NULL);
-    // Free the allocated blocks
-    while (!allocations.empty())
-    {
-        void* ptr = allocations.back();
-        allocations.pop_back();
-        sfree(ptr);
-        verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, allocations.size() % 2, allocations.size(), 32 - (int)(allocations.size() / 2) -(allocations.size() % 2), 0, 0, 0);
-    }
-
-    // Verify that all blocks are merged into a single large block
+    // Initial state
+//    verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0);
+    void* ptr = smalloc(100000001);
+    assert(ptr==NULL);
     verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0);
-
-
-    for (int i = 0; i < 64; i++)
-    {
-        void* ptr = smalloc(128 * std::pow(2, 9) - 64);
-        assert(ptr != nullptr);
-        allocations.push_back(ptr);
-        verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, allocations.size()%2, allocations.size(), 32-(int)(i/2)-1, 0, 0, 0);
-    }
-    assert(smalloc(40) == NULL);
-    // Free the allocated blocks
-    while (!allocations.empty())
-    {
-        void* ptr = allocations.front();
-        allocations.erase(allocations.begin());
-        sfree(ptr);
-        verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, allocations.size() % 2, allocations.size(), 32 - (int)(allocations.size() / 2) -(allocations.size() % 2), 0, 0, 0);
-    }
+    sfree(ptr);
     verify_block_by_order(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 32, 0, 0, 0);
         return 0;
 }
